@@ -49,13 +49,14 @@ int main(int argc, char **argv) {
 
 	// Initialize program variables
 	// OpenGL
+	glutSetCursor(GLUT_CURSOR_CROSSHAIR); // hide the cursor
 	glClearColor(0.1f, 0.3f, 0.1f, 0.0f); // background color
 	glEnable(GL_DEPTH_TEST);	        // enable depth ordering
 	glEnable(GL_CULL_FACE);		        // enable back-face culling
 	glFrontFace(GL_CCW);		        // vertex order for the front face
 	glCullFace(GL_BACK);		        // back-faces should be removed
 
-	glPolygonMode(GL_FRONT, GL_LINE);   // draw polygons as wireframe
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);   // draw polygons as wireframe
 
 										// Transformation
 	program.Translation.set(0.0f, 0.0f, 0.0f);

@@ -101,7 +101,7 @@ void Programm::keyboard(unsigned char key, int x, int y) {
 		Cam.Reset();
 		break;
 
-	case 'p': //change perspective
+	case 'i': //change perspective
 		if (Cam.projection == Projections::Perspective) {
 			Cam.projection = Projections::Orthogonal;
 		}
@@ -109,6 +109,14 @@ void Programm::keyboard(unsigned char key, int x, int y) {
 			Cam.projection = Projections::Perspective;
 		break;
 		// --- utilities ---
+
+	case 'p': // change to wireframe rendering
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		break;
+	case 'o': // change to polygon rendering
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		break;
+
 	case 'g': // show the current OpenGL version
 		cout << "OpenGL version " << glGetString(GL_VERSION) << endl;
 		break;
