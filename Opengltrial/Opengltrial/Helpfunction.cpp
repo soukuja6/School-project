@@ -14,6 +14,7 @@ bool Programm::InitMesh(string location) {
 	// Notice that normals may not be stored in the model
 	// This issue will be dealt with in the next lecture
 
+	
 	// VBO
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -43,6 +44,31 @@ bool Programm::LoadShaders(std::string vertexshader, std::string fragmentshader)
 
 	ShaderProgram = loader.shader;
 	TrLocation = loader.TrLocation;
+	CameraPositionLoc = loader.CameraPositionLoc;
+	DirectionalLoc = loader.DirectionalLoc;
+
+	dLight.dLightDirLoc = loader.DLightDirLoc;
+	dLight.lightAColorLoc = loader.DLightAColorLoc;
+	dLight.lightDColorLoc = loader.DLightDColorLoc;
+	dLight.lightSColorLoc = loader.DLightSColorLoc;
+	dLight.lightAIntensityLoc = loader.DLightAIntensityLoc;
+	dLight.lightDIntensityLoc = loader.DLightDIntensityLoc;
+	dLight.lightSIntensityLoc = loader.DLightSIntensityLoc;
+
+	pLight.klinearloc = loader.klinearloc;
+	pLight.ksquaredloc = loader.ksquaredloc;
+	pLight.lightAColorLoc = loader.PLightAColorLoc;
+	pLight.lightDColorLoc = loader.PLightDColorLoc;
+	pLight.lightSColorLoc = loader.PLightSColorLoc;
+	pLight.lightAIntensityLoc = loader.PLightAIntensityLoc;
+	pLight.lightDIntensityLoc = loader.PLightDIntensityLoc;
+	pLight.lightSIntensityLoc = loader.PLightSIntensityLoc;
+
+
+	MaterialAColorLoc = loader.MaterialAColorLoc;
+	MaterialDColorLoc = loader.MaterialDColorLoc;
+	MaterialSColorLoc = loader.MaterialSColorLoc;
+	MaterialShineLoc = loader.MaterialShineLoc;
 	return true;
 }
 
@@ -50,12 +76,13 @@ bool Programm::LoadShaders(std::string vertexshader, std::string fragmentshader)
 // Return the transformation matrix corresponding to the specified camera
 Matrix4f Camera::computeCameraTransform() {
 	// camera rotation
+
 	Vector3f t = target.getNormalized();
 	Vector3f u = up.getNormalized();
 	Vector3f r = t.cross(u);
 	Matrix4f camR(r.x(), r.y(), r.z(), 0.f,			//axis x
 		u.x(), u.y(), u.z(), 0.f,					// axis y 
-		-t.x(), -t.y(), -t.z(), 0.f,               // axis z:minus because we are rotating object
+		-t.x(), -t.y(), -t.z(), 0.f,               // axis z: axis z heads to oposite direction than the camera is looking at
 		0.f, 0.f, 0.f, 1.f);
 
 	// camera translation
@@ -65,11 +92,14 @@ Matrix4f Camera::computeCameraTransform() {
 	Matrix4f prj;
 	if (projection == Projections::Perspective)
 		prj = Matrix4f::createPerspectivePrj(fov, ar, zNear, zFar);
-	else prj = Matrix4f(1.f, 0.f, 0.f, 0.f,                          //orthogonal projection, just get rid of z axis
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 0.f, 0.f,
-		0.f, 0.f, 0.f, 1.f);
-
+	else {
+		int x = 10;
+		prj = Matrix4f::createOrthoPrj(-ar*x/2.0f, ar*x / 2.0f, -x / 2.0f, x / 2.0f, zNear, zFar);
+		/*prj = Matrix4f(1.f, 0.f, 0.f, 0.f,                          //orthogonal projection, just get rid of z axis
+			0.f, 1.f, 0.f, 0.f,
+			0.f, 0.f, 0.f, 0.f,
+			0.f, 0.f, 0.f, 1.f);*/
+	}
 	// scaling due to zooming
 	Matrix4f camZoom = Matrix4f::createScaling(zoom, zoom, 1.f);
 
@@ -85,7 +115,7 @@ Matrix4f Camera::computeCameraTransform() {
 
 void Camera::Reset()
 {
-	position.set(0.f, 0.f, 0.f);
+	position.set(0.0f, 2.0f, 20.0f);
 	target.set(0.f, 0.f, -1.f);
 	up.set(0.f, 1.f, 0.f);
 	fov = 30.f;

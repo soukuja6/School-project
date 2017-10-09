@@ -84,6 +84,31 @@ bool Shaderloader::Initshaders(const char * vertexShaderFilename, const char * f
 
 	// Get the location of the uniform variables
 	TrLocation = glGetUniformLocation(ShaderProgram, "transformation");
+	CameraPositionLoc = glGetUniformLocation(ShaderProgram, "camera_position");
+	DLightDirLoc = glGetUniformLocation(ShaderProgram, "d_light_direction");
+	DirectionalLoc = glGetUniformLocation(ShaderProgram, "directional");
+
+	DLightAColorLoc = glGetUniformLocation(ShaderProgram, "d_light_a_color");
+	DLightDColorLoc = glGetUniformLocation(ShaderProgram, "d_light_d_color");
+	DLightSColorLoc = glGetUniformLocation(ShaderProgram, "d_light_s_color");
+	DLightAIntensityLoc = glGetUniformLocation(ShaderProgram, "d_light_a_intensity");
+	DLightDIntensityLoc = glGetUniformLocation(ShaderProgram, "d_light_d_intensity");
+	DLightSIntensityLoc = glGetUniformLocation(ShaderProgram, "d_light_s_intensity");
+
+	klinearloc = glGetUniformLocation(ShaderProgram, "klinear");
+	ksquaredloc = glGetUniformLocation(ShaderProgram, "ksquared");
+	PLightAColorLoc = glGetUniformLocation(ShaderProgram, "p_light_a_color");
+	PLightDColorLoc = glGetUniformLocation(ShaderProgram, "p_light_d_color");
+	PLightSColorLoc = glGetUniformLocation(ShaderProgram, "p_light_s_color");
+	PLightAIntensityLoc = glGetUniformLocation(ShaderProgram, "p_light_a_intensity");
+	PLightDIntensityLoc = glGetUniformLocation(ShaderProgram, "p_light_d_intensity");
+	PLightSIntensityLoc = glGetUniformLocation(ShaderProgram, "p_light_s_intensity");
+
+
+	MaterialAColorLoc = glGetUniformLocation(ShaderProgram, "material_a_color");
+	MaterialDColorLoc = glGetUniformLocation(ShaderProgram, "material_d_color");
+	MaterialSColorLoc = glGetUniformLocation(ShaderProgram, "material_s_color");
+	MaterialShineLoc = glGetUniformLocation(ShaderProgram, "material_shininess");
 	
 	assert(TrLocation != -1);  // check for errors (variable not found)
 

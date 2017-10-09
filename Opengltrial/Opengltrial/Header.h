@@ -24,6 +24,67 @@ enum Projections
 };
 
 
+struct Light {
+	Light() {
+		Reset();
+	}
+
+	void Reset() {
+		lightAColor = { 0.05f, 0.03f, 0.0f };
+		lightDColor = { 0.5f, 0.4f, 0.3f };
+		lightSColor = { 0.6f, 0.6f, 0.7f };
+		lightAIntensity= 1.0f;
+		lightDIntensity = 1.0f;
+		lightSIntensity = 1.0f;
+	}
+	GLint lightAColorLoc = -1;
+	GLint lightDColorLoc = -1;
+	GLint lightSColorLoc = -1;
+	GLint lightAIntensityLoc = -1;
+	GLint lightDIntensityLoc = -1;
+	GLint lightSIntensityLoc = -1;
+
+	Vector3f lightAColor;
+	Vector3f lightDColor;
+	Vector3f lightSColor;
+	float lightAIntensity = -1;
+	float lightDIntensity = -1;
+	float lightSIntensity = -1;
+	
+};
+
+struct DirectionalLight : Light {
+	DirectionalLight() {
+		Reset();
+	};
+
+	void Reset() {
+		Light::Reset();
+		dLightDir = { 0.0f, -0.5f, -1.0f };
+	}
+
+	GLint dLightDirLoc=-1;
+	Vector3f dLightDir;
+};
+
+struct HeadLight : Light {
+	HeadLight() {
+		Reset();
+	}
+	void Reset() {
+		Light::Reset();
+		klinear = 0.002f;
+		ksquared = 0.002f;
+	}
+
+	float klinear;
+	float ksquared;
+
+	GLint klinearloc=-1;
+	GLint ksquaredloc=-1;
+
+};
+
 struct Camera {
 	Vector3f position;	// the position of the camera
 	Vector3f target;	// the direction the camera is looking at
@@ -89,6 +150,12 @@ public:
 						
 	GLuint ShaderProgram=0;	// A shader program
 
+	//Lights
+	DirectionalLight dLight;
+	HeadLight pLight;
+	bool directional=true;
+	
+
     // Vertex transformation
 	Vector3f Translation;	// Translation
 	float Scaling;			///< Scaling
@@ -97,6 +164,14 @@ public:
 	int MouseX, MouseY;		//The last position of the mouse
 	int MouseButton;		//The last mouse button pressed or released
 	Camera Cam;
+
+	//Shader variables
 	GLint TrLocation = -1;  //location of shader transformation variable
+	GLint DirectionalLoc = -1;
+	GLint CameraPositionLoc = -1;
+	GLint MaterialAColorLoc = -1;
+	GLint MaterialDColorLoc = -1;
+	GLint MaterialSColorLoc = -1;
+	GLint MaterialShineLoc = -1;
 };
 #endif // !kk

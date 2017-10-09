@@ -25,15 +25,48 @@ void Programm::display() {
 	Cam.ar = (1.0f * width) / height;
 	Matrix4f transformation = Cam.computeCameraTransform();
 
+	//SET SHADER VARIABLES
 	glUniformMatrix4fv(TrLocation, 1, GL_FALSE, transformation.get());
+	glUniform3fv(CameraPositionLoc, 1, Cam.position.get());
+	glUniform3f(MaterialAColorLoc, 0.5f, 0.5f, 0.5f);
+	glUniform3f(MaterialDColorLoc, 1.0f, 0.8f, 0.8f);
+	glUniform3f(MaterialSColorLoc, 0.5f, 0.5f, 0.5f);
+	glUniform1f(MaterialShineLoc, 20.0f);
 
+	if (directional) {  //if the directional light is enabled
+		glUniform1ui(DirectionalLoc, true);
+		glUniform3fv(dLight.dLightDirLoc,1, dLight.dLightDir.get());
+		//glUniform3f(DLight.DLightDirLoc, 0.5f, 0.5f, 0.5f);
+		glUniform3fv(dLight.lightAColorLoc, 1,dLight.lightAColor.get());
+		glUniform3fv(dLight.lightDColorLoc, 1,dLight.lightDColor.get());
+		glUniform3fv(dLight.lightSColorLoc, 1,dLight.lightSColor.get());
+		glUniform1f(dLight.lightAIntensityLoc, dLight.lightAIntensity);
+		glUniform1f(dLight.lightDIntensityLoc, dLight.lightDIntensity);
+		glUniform1f(dLight.lightSIntensityLoc, dLight.lightSIntensity);
+	}
+	else {     //otherwise it is head mounted light
+		glUniform1ui(DirectionalLoc, false);
+		glUniform1f(pLight.klinearloc, pLight.klinear);
+		glUniform1f(pLight.ksquaredloc, pLight.ksquared);
+		glUniform3f(pLight.lightAColorLoc, pLight.lightAColor.x(), pLight.lightAColor.y(), pLight.lightAColor.z());
+		glUniform3f(pLight.lightDColorLoc, pLight.lightDColor.x(), pLight.lightDColor.y(), pLight.lightDColor.z());
+		glUniform3f(pLight.lightSColorLoc, pLight.lightSColor.x(), pLight.lightSColor.y(), pLight.lightSColor.z());
+		glUniform1f(pLight.lightAIntensityLoc, pLight.lightAIntensity);
+		glUniform1f(pLight.lightDIntensityLoc, pLight.lightDIntensity);
+		glUniform1f(pLight.lightSIntensityLoc, pLight.lightSIntensity);
+	}
 
 
 	// Enable the vertex attributes and set their format
-	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(0);        //LOCATION is first
+	glEnableVertexAttribArray(2);        //normal is third
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
 		sizeof(ModelOBJ::Vertex),
 		reinterpret_cast<const GLvoid*>(0));
+
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE,
+		sizeof(ModelOBJ::Vertex),
+		reinterpret_cast<const GLvoid*>(sizeof(float[3])+sizeof(float[2])));
 
 	/*
 	glEnableVertexAttribArray(1);
@@ -54,6 +87,7 @@ void Programm::display() {
 
 	// Disable the vertex attributes (not necessary but recommended)
 	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(2);
 
 
 	// Disable the shader program (not necessary but recommended)
@@ -78,24 +112,24 @@ void Programm::keyboard(unsigned char key, int x, int y) {
 	switch (tolower(key)) {
 		// --- camera movements ---
 	case 'w':
-		Cam.position += Cam.target * 0.1f;
+		Cam.position += Cam.target * 0.5f;
 		break;
 	case 'a':
 		right = Cam.target.cross(Cam.up);
-		Cam.position -= right * 0.1f;
+		Cam.position -= right * 0.5f;
 		break;
 	case 's':
-		Cam.position -= Cam.target * 0.1f;
+		Cam.position -= Cam.target * 0.5f;
 		break;
 	case 'd':
 		right = Cam.target.cross(Cam.up);
-		Cam.position += right * 0.1f;
+		Cam.position += right * 0.5f;
 		break;
 	case 'c':
-		Cam.position -= Cam.up * 0.1f;
+		Cam.position -= Cam.up * 0.5f;
 		break;
 	case ' ':
-		Cam.position += Cam.up * 0.1f;
+		Cam.position += Cam.up * 0.5f;
 		break;
 	case 'r': // Reset camera status
 		Cam.Reset();
@@ -113,8 +147,12 @@ void Programm::keyboard(unsigned char key, int x, int y) {
 	case 'p': // change to wireframe rendering
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		break;
+	case 'l': // change light option
+		directional = !directional;
+		break;
+
 	case 'o': // change to polygon rendering
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glPolygonMode(GL_FRONT, GL_FILL);
 		break;
 
 	case 'g': // show the current OpenGL version
@@ -171,22 +209,22 @@ void Programm::mouse(int button, int state, int x, int y) {
 // Called whenever the mouse is moving while a button is pressed
 void Programm::motion(int x, int y) {
 	if (MouseButton == GLUT_RIGHT_BUTTON) {
-		Cam.position += Cam.target * 0.003f * (MouseY - y);
+		Cam.position += Cam.target * 0.015f * (MouseY - y);
 		Cam.position += Cam.target.cross(Cam.up) * 0.003f * (x - MouseX);
 	}
 	if (MouseButton == GLUT_MIDDLE_BUTTON) {
-		Cam.zoom = std::max(0.001f, Cam.zoom + 0.003f * (y - MouseY));
+		Cam.zoom = std::max(0.001f, Cam.zoom + 0.0153f * (y - MouseY));
 	}
 	if (MouseButton == GLUT_LEFT_BUTTON) {
 		Matrix4f ry, rr;
 
 		// "horizontal" rotation
-		ry.rotate(0.1f * (MouseX - x), Vector3f(0, 1, 0));
+		ry.rotate(0.05f * (MouseX - x), Vector3f(0, 1, 0));
 		Cam.target = ry * Cam.target;
 		Cam.up = ry * Cam.up;
 
 		// "vertical" rotation
-		rr.rotate(0.1f * (MouseY - y), Cam.target.cross(Cam.up));
+		rr.rotate(0.05f * (MouseY - y), Cam.target.cross(Cam.up));
 		Cam.up = rr * Cam.up;
 		Cam.target = rr * Cam.target;
 	}
