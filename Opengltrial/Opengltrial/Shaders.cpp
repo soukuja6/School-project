@@ -84,10 +84,13 @@ bool Shaderloader::Initshaders(const char * vertexShaderFilename, const char * f
 
 	// Get the location of the uniform variables
 	TrLocation = glGetUniformLocation(ShaderProgram, "transformation");
+	//PointTrLocation = glGetUniformLocation(ShaderProgram, "vertextransformation");
+	//NormalTrLocation = glGetUniformLocation(ShaderProgram, "normaltransformation");
 	CameraPositionLoc = glGetUniformLocation(ShaderProgram, "camera_position");
-	DLightDirLoc = glGetUniformLocation(ShaderProgram, "d_light_direction");
+	CameraDirLoc = glGetUniformLocation(ShaderProgram, "cameradir");
 	DirectionalLoc = glGetUniformLocation(ShaderProgram, "directional");
 
+	DLightDirLoc = glGetUniformLocation(ShaderProgram, "d_light_direction");
 	DLightAColorLoc = glGetUniformLocation(ShaderProgram, "d_light_a_color");
 	DLightDColorLoc = glGetUniformLocation(ShaderProgram, "d_light_d_color");
 	DLightSColorLoc = glGetUniformLocation(ShaderProgram, "d_light_s_color");
@@ -97,6 +100,7 @@ bool Shaderloader::Initshaders(const char * vertexShaderFilename, const char * f
 
 	klinearloc = glGetUniformLocation(ShaderProgram, "klinear");
 	ksquaredloc = glGetUniformLocation(ShaderProgram, "ksquared");
+	anglerestrictionloc = glGetUniformLocation(ShaderProgram, "anglerest");
 	PLightAColorLoc = glGetUniformLocation(ShaderProgram, "p_light_a_color");
 	PLightDColorLoc = glGetUniformLocation(ShaderProgram, "p_light_d_color");
 	PLightSColorLoc = glGetUniformLocation(ShaderProgram, "p_light_s_color");

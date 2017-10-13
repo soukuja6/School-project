@@ -16,6 +16,10 @@
 #include "Vector3.h"
 #include "Shaders.h"
 
+enum Shadertype {     // different types of shaders
+	FragmentIllumination,
+	Vertexillumination
+};
 
 enum Projections
 {
@@ -67,19 +71,22 @@ struct DirectionalLight : Light {
 	Vector3f dLightDir;
 };
 
-struct HeadLight : Light {
+struct HeadLight : Light {        //spot light mounted on head with restricted lightning angle and decreasing light intensity with distance
 	HeadLight() {
 		Reset();
 	}
 	void Reset() {
 		Light::Reset();
-		klinear = 0.002f;
-		ksquared = 0.002f;
+		klinear = 0.01f;
+		ksquared = 0.1f;
+		anglerestriction = 10;
 	}
 
 	float klinear;
 	float ksquared;
+	int anglerestriction;
 
+	GLint anglerestictionloc = -1;
 	GLint klinearloc=-1;
 	GLint ksquaredloc=-1;
 
@@ -98,7 +105,9 @@ struct Camera {
 	float zoom;			// an additional scaling parameter
 
 	//Compute camera transformation matrix
-	Matrix4f computeCameraTransform();
+	Matrix4f computeCameraTransform();          
+	Matrix4f computeTransformToworldcoordinates();      //compute matrix that transform object to world coordinates
+	Matrix4f computeNormalTransform();					//copute matrix that transform object'snormal to normals in wolrds coordinates
 
 	//Reset camera to default settings
 	void Reset();
@@ -149,6 +158,7 @@ public:
 
 						
 	GLuint ShaderProgram=0;	// A shader program
+	Shadertype shadertype = FragmentIllumination;   //typeofshader currently used
 
 	//Lights
 	DirectionalLight dLight;
@@ -167,8 +177,12 @@ public:
 
 	//Shader variables
 	GLint TrLocation = -1;  //location of shader transformation variable
+	//GLint PointTrLocation = -1;  //location of matrix trandofrming to wolrd coordinates
+	//GLint NormalTrLocation = -1;  //location of matrix trandofrming normals to wolrd coordinates
+
 	GLint DirectionalLoc = -1;
 	GLint CameraPositionLoc = -1;
+	GLint CameraDirLoc = -1;              //position of camera direction(target) variable in shader
 	GLint MaterialAColorLoc = -1;
 	GLint MaterialDColorLoc = -1;
 	GLint MaterialSColorLoc = -1;

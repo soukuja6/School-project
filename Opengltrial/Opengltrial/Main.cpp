@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
 	// Shaders & mesh
 	
 
-	if (!program.LoadShaders("shader.v.glsl", "shader.f.glsl") || !program.InitMesh("building\\building.obj"))
+	if (!program.LoadShaders("Vertexshader.glsl", "Fragmentshader.glsl") || !program.InitMesh("building\\building.obj"))
 		return -1;
 
 

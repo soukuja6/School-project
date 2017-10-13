@@ -13,7 +13,10 @@ public:
 		const char* fragmentShaderFilename);
 	GLuint shader;                        //actual shader
 	GLint TrLocation = -1;                //location of transformation variable in shader
+	//GLint PointTrLocation = -1;
+	//GLint NormalTrLocation = -1;
 	GLint CameraPositionLoc = -1;
+	GLint CameraDirLoc = -1;
 	GLint DirectionalLoc = -1;                     //true=directional light  false= head-mounted light
 
 	GLint DLightDirLoc = -1;
@@ -26,6 +29,7 @@ public:
 
 	GLint klinearloc = -1;
 	GLint ksquaredloc = -1;
+	GLint anglerestrictionloc = -1;
 	GLint PLightAColorLoc = -1;
 	GLint PLightDColorLoc = -1;
 	GLint PLightSColorLoc = -1;

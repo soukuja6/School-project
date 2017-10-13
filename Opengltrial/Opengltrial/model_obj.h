@@ -110,6 +110,7 @@ public:
     const Vertex *getVertexBuffer() const;
     int getVertexSize() const;
 
+	void generateNormals();
     bool hasNormals() const;
     bool hasPositions() const;
     bool hasTangents() const;
@@ -132,7 +133,6 @@ private:
     void bounds(float center[3], float &width, float &height,
         float &length, float &radius) const;
     void buildMeshes();
-    void generateNormals();
     void generateTangents();
     void importGeometryFirstPass(FILE *pFile);
     void importGeometrySecondPass(FILE *pFile);

@@ -24,10 +24,16 @@ void Programm::display() {
 	// Set the camera transformation
 	Cam.ar = (1.0f * width) / height;
 	Matrix4f transformation = Cam.computeCameraTransform();
+	//Matrix4f vertextoworldtr = Cam.computeTransformToworldcoordinates();
+	//Matrix4f normaltr = Cam.computeNormalTransform();
 
 	//SET SHADER VARIABLES
 	glUniformMatrix4fv(TrLocation, 1, GL_FALSE, transformation.get());
+	//glUniformMatrix4fv(PointTrLocation, 1, GL_FALSE, vertextoworldtr.get());
+	//glUniformMatrix4fv(NormalTrLocation, 1, GL_FALSE, normaltr.get());
+	glUniformMatrix4fv(TrLocation, 1, GL_FALSE, transformation.get());
 	glUniform3fv(CameraPositionLoc, 1, Cam.position.get());
+	glUniform3fv(CameraDirLoc, 1, Cam.target.get());
 	glUniform3f(MaterialAColorLoc, 0.5f, 0.5f, 0.5f);
 	glUniform3f(MaterialDColorLoc, 1.0f, 0.8f, 0.8f);
 	glUniform3f(MaterialSColorLoc, 0.5f, 0.5f, 0.5f);
@@ -48,6 +54,7 @@ void Programm::display() {
 		glUniform1ui(DirectionalLoc, false);
 		glUniform1f(pLight.klinearloc, pLight.klinear);
 		glUniform1f(pLight.ksquaredloc, pLight.ksquared);
+		glUniform1f(pLight.anglerestictionloc, pLight.anglerestriction);
 		glUniform3f(pLight.lightAColorLoc, pLight.lightAColor.x(), pLight.lightAColor.y(), pLight.lightAColor.z());
 		glUniform3f(pLight.lightDColorLoc, pLight.lightDColor.x(), pLight.lightDColor.y(), pLight.lightDColor.z());
 		glUniform3f(pLight.lightSColorLoc, pLight.lightSColor.x(), pLight.lightSColor.y(), pLight.lightSColor.z());
@@ -112,24 +119,24 @@ void Programm::keyboard(unsigned char key, int x, int y) {
 	switch (tolower(key)) {
 		// --- camera movements ---
 	case 'w':
-		Cam.position += Cam.target * 0.5f;
+		Cam.position += Cam.target * 0.1f;
 		break;
 	case 'a':
 		right = Cam.target.cross(Cam.up);
-		Cam.position -= right * 0.5f;
+		Cam.position -= right * 0.1f;
 		break;
 	case 's':
-		Cam.position -= Cam.target * 0.5f;
+		Cam.position -= Cam.target * 0.1f;
 		break;
 	case 'd':
 		right = Cam.target.cross(Cam.up);
-		Cam.position += right * 0.5f;
+		Cam.position += right * 0.1f;
 		break;
 	case 'c':
-		Cam.position -= Cam.up * 0.5f;
+		Cam.position -= Cam.up * 0.1f;
 		break;
 	case ' ':
-		Cam.position += Cam.up * 0.5f;
+		Cam.position += Cam.up * 0.1f;
 		break;
 	case 'r': // Reset camera status
 		Cam.Reset();
@@ -142,6 +149,27 @@ void Programm::keyboard(unsigned char key, int x, int y) {
 		else
 			Cam.projection = Projections::Perspective;
 		break;
+
+	case 'k': //change shader
+		if (shadertype == Shadertype::FragmentIllumination) {
+			if (LoadShaders("shader.v.glsl", "shader.f.glsl")) {
+				shadertype = Shadertype::Vertexillumination;
+				cout << "> done." << endl;
+			}
+			else {
+				cout << "> not possible." << endl;
+			}
+		}
+		else {
+			if (LoadShaders("Vertexshader.glsl", "Fragmentshader.glsl")) {
+				cout << "> done." << endl;
+				shadertype = Shadertype::FragmentIllumination;
+			}
+			else {
+				cout << "> not possible." << endl;
+			}
+			
+		}break;
 		// --- utilities ---
 
 	case 'p': // change to wireframe rendering
@@ -210,7 +238,7 @@ void Programm::mouse(int button, int state, int x, int y) {
 void Programm::motion(int x, int y) {
 	if (MouseButton == GLUT_RIGHT_BUTTON) {
 		Cam.position += Cam.target * 0.015f * (MouseY - y);
-		Cam.position += Cam.target.cross(Cam.up) * 0.003f * (x - MouseX);
+		Cam.position += Cam.target.cross(Cam.up) * 0.0015f * (x - MouseX);
 	}
 	if (MouseButton == GLUT_MIDDLE_BUTTON) {
 		Cam.zoom = std::max(0.001f, Cam.zoom + 0.0153f * (y - MouseY));
