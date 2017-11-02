@@ -32,8 +32,58 @@ bool Programm::InitMesh(string location) {
 		3 * Model.getNumberOfTriangles() * sizeof(int),
 		Model.getIndexBuffer(),
 		GL_STATIC_DRAW);
+	
 
+	// Check the materials for the texture
+	int i = Model.getNumberOfMeshes();
+	maintexture.clear();
+	maintexture.resize(Model.getNumberOfMaterials());
+	for (int i = 0; i < Model.getNumberOfMaterials(); ++i) {
+		// if the current material has a texture
+		if (Model.getMaterial(i).colorMapFilename != "") {
 
+			// Load the texture
+			if (maintexture[i].TextureData != nullptr)
+				free(maintexture[i].TextureData);
+			unsigned int fail = lodepng_decode_file(&maintexture[i].TextureData, &maintexture[i].TextureWidth, &maintexture[i].TextureHeight,
+				("building\\" + Model.getMaterial(i).colorMapFilename).c_str(),
+				LCT_RGB, 8); // Remember to check the last 2 parameters
+			if (fail != 0) {
+				cerr << "Error: cannot load texture file "
+					<< "building\\"+Model.getMaterial(i).colorMapFilename << endl;
+				return false;
+			}
+
+			// Create the texture object
+			if (maintexture[i].TextureObject != 0)
+				glDeleteTextures(1, &maintexture[i].TextureObject);
+			glGenTextures(1, &maintexture[i].TextureObject);
+
+			// Bind it as a 2D texture (note that other types of textures are supported as well)
+			glBindTexture(GL_TEXTURE_2D, maintexture[i].TextureObject);
+
+			// Set the texture data
+			glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				GL_RGB,			// remember to check this
+				maintexture[i].TextureWidth,
+				maintexture[i].TextureHeight,
+				0,
+				GL_RGB,			// remember to check this
+				GL_UNSIGNED_BYTE,
+				maintexture[i].TextureData
+			);
+
+			// Configure texture parameter
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			// For the moment, assumes there is only one texture to be loaded
+			//break;
+		}
+	}
+	
 	return true;
 } /* initBuffers() */
 

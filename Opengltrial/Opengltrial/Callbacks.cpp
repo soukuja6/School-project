@@ -34,10 +34,7 @@ void Programm::display() {
 	glUniformMatrix4fv(TrLocation, 1, GL_FALSE, transformation.get());
 	glUniform3fv(CameraPositionLoc, 1, Cam.position.get());
 	glUniform3fv(CameraDirLoc, 1, Cam.target.get());
-	glUniform3f(MaterialAColorLoc, 0.5f, 0.5f, 0.5f);
-	glUniform3f(MaterialDColorLoc, 1.0f, 0.8f, 0.8f);
-	glUniform3f(MaterialSColorLoc, 0.5f, 0.5f, 0.5f);
-	glUniform1f(MaterialShineLoc, 20.0f);
+	
 
 	if (directional) {  //if the directional light is enabled
 		glUniform1ui(DirectionalLoc, true);
@@ -65,7 +62,13 @@ void Programm::display() {
 
 
 	// Enable the vertex attributes and set their format
+	GLuint SamplerLoc = glGetUniformLocation(ShaderProgram, "sampler");
+
+	// Set the uniform variable for the texture unit (texture unit 0)
+	glUniform1i(SamplerLoc, 0);
+
 	glEnableVertexAttribArray(0);        //LOCATION is first
+	glEnableVertexAttribArray(1);        //texturecoor
 	glEnableVertexAttribArray(2);        //normal is third
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
 		sizeof(ModelOBJ::Vertex),
@@ -74,6 +77,13 @@ void Programm::display() {
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE,
 		sizeof(ModelOBJ::Vertex),
 		reinterpret_cast<const GLvoid*>(sizeof(float[3])+sizeof(float[2])));
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+		sizeof(ModelOBJ::Vertex),
+		reinterpret_cast<const GLvoid*>(sizeof(Vector3f)));
+
+	
+	
 
 	/*
 	glEnableVertexAttribArray(1);
@@ -86,14 +96,45 @@ void Programm::display() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
 	// Draw the elements on the GPU
-	glDrawElements(
+	/*glDrawElements(
 		GL_TRIANGLES,
 		Model.getNumberOfIndices(),
 		GL_UNSIGNED_INT,
-		0);
+		0);*/
+	// Enable texture unit 0 and bind the texture to it
+	glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, maintexture[3].TextureObject);
+
+	for (size_t i = 0; i < Model.getNumberOfMeshes(); i++)            // draw every mesh separately
+	{
+		auto && actmesh = Model.getMesh(i);
+		int j = 0;
+		for (j = 0; j < Model.getNumberOfMaterials(); j++)
+		{
+			if (&Model.getMaterial(j) == actmesh.pMaterial) {
+				break;
+			}
+		}
+
+		glUniform3fv(MaterialAColorLoc,1, Model.getMaterial(j).ambient);
+		glUniform3fv(MaterialDColorLoc,1, Model.getMaterial(j).diffuse);
+		glUniform3fv(MaterialSColorLoc,1, Model.getMaterial(j).specular);
+		glUniform1f(MaterialShineLoc, 20);										//shininess from blender is set to almost zero, which more or less destroy the picture so we set it manually
+		
+		glBindTexture(GL_TEXTURE_2D, maintexture[j].TextureObject);
+
+		glDrawElements(
+			GL_TRIANGLES,
+			actmesh.triangleCount * 3,
+			GL_UNSIGNED_INT,
+			(void*)(actmesh.startIndex * sizeof(GLuint)));
+
+	}
+
 
 	// Disable the vertex attributes (not necessary but recommended)
 	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 
 

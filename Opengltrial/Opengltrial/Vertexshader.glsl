@@ -15,7 +15,12 @@ uniform mat4 transformation;
 
 // vertex attributes
 layout (location = 0) in vec3 position; 
+layout (location = 1) in vec2 tex_coords; 
 layout (location = 2) in vec3 normal; 
+
+
+// pass the texture coordinates to the fragment shader
+out vec2 cur_tex_coords;
 
 // compute the color here and pass it to the fragment shader
 out vec4 fcolor;
@@ -27,6 +32,8 @@ void main() {
     gl_Position = transformation * vec4(position, 1.);	
 	positionout = position;
 	normalout = normalize(normal);
+	// pass the texture coordinates to the fragment shader
+	cur_tex_coords = tex_coords;
 	//positionout = vec3(vertextransformation*vec4(position, 1.));
 	//normalout = normalize(vec3(normaltransformation*vec4(normal,1.))) ;
 	

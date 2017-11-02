@@ -72,6 +72,11 @@ int main(int argc, char **argv) {
 	// Start the main event loop
 	glutMainLoop();
 
+	// clean-up before exit
+	for (auto && texture : program.maintexture) {
+		if (texture.TextureData != nullptr)
+			free(texture.TextureData);
+	}
 	return 0;
 }
 

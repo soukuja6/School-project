@@ -37,6 +37,11 @@ uniform vec3 material_d_color;
 uniform vec3 material_s_color;
 uniform float material_shininess;
 
+// Sampler to access the texture
+uniform sampler2D sampler;
+
+// Per fragment texture coordinates
+in vec2 cur_tex_coords;
 
 // Per-fragment color coming from the vertex shader
 in vec3 positionout;
@@ -52,6 +57,8 @@ void main() {
 	vec3 view_dir_nn = normalize(camera_position - positionout);
 	vec4 fcolor;
 	float dist = length(camera_position - positionout);
+
+	vec3 diffusecolor =  vec3(texture2D(sampler, cur_tex_coords));
 
 	if(directional){
 		// --- directional light ----
@@ -72,7 +79,7 @@ void main() {
 				material_a_color * d_light_a_color * d_light_a_intensity,
 				0.0, 1.0);
 		vec3 diff_color = clamp(
-				material_d_color * dot_d_light_normal * d_light_d_intensity * d_light_d_color,
+				diffusecolor * dot_d_light_normal * d_light_d_intensity * d_light_d_color,
 				0.0, 1.0);      //added d_light_d_color because it should be there according to me and the presentation
 		vec3 spec_color = clamp(
 				material_s_color *  d_light_s_color * d_light_s_intensity *
@@ -116,7 +123,7 @@ void main() {
 				material_a_color * p_light_a_color * p_light_a_intensity * intensitydeccoef,
 				0.0, 1.0);
 		vec3 diff_color = clamp(
-				material_d_color * dot_p_light_normal * p_light_d_intensity * intensitydeccoef* p_light_d_color,
+				diffusecolor * dot_p_light_normal * p_light_d_intensity * intensitydeccoef* p_light_d_color,
 				0.0, 1.0);
 		vec3 spec_color = clamp(
 				material_s_color *  p_light_s_color *  p_light_s_intensity * intensitydeccoef *

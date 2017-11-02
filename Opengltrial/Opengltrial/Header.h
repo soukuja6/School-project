@@ -2,7 +2,9 @@
 #ifndef kk
 #define kk
 
-
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 
 #include "Dependencies\glew\glew.h"
 #include "Dependencies\freeglut\freeglut.h"
@@ -15,6 +17,7 @@
 #include "model_obj.h"
 #include "Vector3.h"
 #include "Shaders.h"
+#include "lodepng.h"
 
 enum Shadertype {     // different types of shaders
 	FragmentIllumination,
@@ -117,6 +120,13 @@ struct Camera {
 
 };
 
+struct Texture {
+	GLuint TextureObject = 0;				///< A texture object
+	unsigned int TextureWidth = 0;			///< The width of the current texture
+	unsigned int TextureHeight = 0;			///< The height of the current texture
+	unsigned char *TextureData = nullptr;	///< the array where the texture image will be stored
+};
+
 class Programm {
 public:
 	Programm() {
@@ -156,6 +166,7 @@ public:
 	GLuint VBO=0;	// A vertex buffer object
 	GLuint IBO=0;	// An index buffer object
 
+	std::vector<Texture> maintexture;            //stored textures
 						
 	GLuint ShaderProgram=0;	// A shader program
 	Shadertype shadertype = FragmentIllumination;   //typeofshader currently used
