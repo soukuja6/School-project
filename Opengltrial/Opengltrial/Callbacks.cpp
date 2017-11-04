@@ -24,14 +24,17 @@ void Programm::display() {
 	// Set the camera transformation
 	Cam.ar = (1.0f * width) / height;
 	Matrix4f transformation = Cam.computeCameraTransform();
-	//Matrix4f vertextoworldtr = Cam.computeTransformToworldcoordinates();
-	//Matrix4f normaltr = Cam.computeNormalTransform();
+
+	Matrix4f vertextoworldtr;
+	vertextoworldtr.identity();
+	Matrix4f normaltr;
+	normaltr.identity();
 
 	//SET SHADER VARIABLES
 	glUniformMatrix4fv(TrLocation, 1, GL_FALSE, transformation.get());
-	//glUniformMatrix4fv(PointTrLocation, 1, GL_FALSE, vertextoworldtr.get());
-	//glUniformMatrix4fv(NormalTrLocation, 1, GL_FALSE, normaltr.get());
-	glUniformMatrix4fv(TrLocation, 1, GL_FALSE, transformation.get());
+	glUniformMatrix4fv(PointTrLocation, 1, GL_FALSE, vertextoworldtr.get());
+	glUniformMatrix4fv(NormalTrLocation, 1, GL_FALSE, normaltr.get());
+
 	glUniform3fv(CameraPositionLoc, 1, Cam.position.get());
 	glUniform3fv(CameraDirLoc, 1, Cam.target.get());
 	
@@ -67,6 +70,10 @@ void Programm::display() {
 	// Set the uniform variable for the texture unit (texture unit 0)
 	glUniform1i(SamplerLoc, 0);
 
+	// Bind the buffers
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+
 	glEnableVertexAttribArray(0);        //LOCATION is first
 	glEnableVertexAttribArray(1);        //texturecoor
 	glEnableVertexAttribArray(2);        //normal is third
@@ -91,9 +98,7 @@ void Programm::display() {
 	sizeof(ModelOBJ::Vertex),
 	reinterpret_cast<const GLvoid*>(sizeof(Vector3f)));*/
 
-	// Bind the buffers
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+	
 
 	// Draw the elements on the GPU
 	/*glDrawElements(
@@ -105,6 +110,7 @@ void Programm::display() {
 	glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, maintexture[3].TextureObject);
 
+	
 	for (size_t i = 0; i < Model.getNumberOfMeshes(); i++)            // draw every mesh separately
 	{
 		auto && actmesh = Model.getMesh(i);
@@ -131,6 +137,35 @@ void Programm::display() {
 
 	}
 
+	glBindBuffer(GL_ARRAY_BUFFER, VBOT);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBOT);
+	glBindTexture(GL_TEXTURE_2D, cinematexture[(int)(difference * cinematexture.size())].TextureObject);
+	//cout << (int)(difference * cinematexture.size()) << endl;
+
+	vertextoworldtr = Matrix4f::createTranslation(Vector3f{ 0.0, 0.0, -2.0 });
+	glUniformMatrix4fv(PointTrLocation, 1, GL_FALSE, vertextoworldtr.get());
+	glUniformMatrix4fv(NormalTrLocation, 1, GL_FALSE, normaltr.get());
+	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+		sizeof(MyVertex),
+		reinterpret_cast<const GLvoid*>(0));
+
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE,
+		sizeof(MyVertex),
+		reinterpret_cast<const GLvoid*>(sizeof(float[3]) + sizeof(float[2])));
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+		sizeof(MyVertex),
+		reinterpret_cast<const GLvoid*>(sizeof(Vector3f)));
+	// Bind the buffers
+	
+	glDrawElements(
+		GL_TRIANGLES,
+		2 * 3,
+		GL_UNSIGNED_INT,
+		0);
+		
+
 
 	// Disable the vertex attributes (not necessary but recommended)
 	glDisableVertexAttribArray(0);
@@ -142,7 +177,7 @@ void Programm::display() {
 	glUseProgram(0);
 
 	// Lock the mouse at the center of the screen
-	glutWarpPointer(MouseX, MouseY);
+	//glutWarpPointer(MouseX, MouseY);
 
 	// Swap the frame buffers (off-screen rendering)
 	glutSwapBuffers();
@@ -150,6 +185,14 @@ void Programm::display() {
 
 // Called at regular intervals (can be used for animations)
 void Programm::idle() {
+	clock_t now = clock();
+	difference += (double)(now- lasttime)/CLOCKS_PER_SEC /5;
+	if (difference >= 1.0)
+		difference -= floor(difference);
+
+	//cout << difference << endl;
+	lasttime = now;
+	glutPostRedisplay();
 }
 
 
@@ -270,9 +313,12 @@ void Programm::mouse(int button, int state, int x, int y) {
 	MouseButton = button;
 
 	// Instead of updating the mouse position, lock it at the center of the screen
-	MouseX = glutGet(GLUT_WINDOW_WIDTH) / 2;
-	MouseY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
-	glutWarpPointer(MouseX, MouseY);
+	//MouseX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+	//MouseY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+	//glutWarpPointer(MouseX, MouseY);aaa
+
+	MouseX = x;
+	MouseY = y;
 }
 
 // Called whenever the mouse is moving while a button is pressed
@@ -280,9 +326,13 @@ void Programm::motion(int x, int y) {
 	if (MouseButton == GLUT_RIGHT_BUTTON) {
 		Cam.position += Cam.target * 0.015f * (MouseY - y);
 		Cam.position += Cam.target.cross(Cam.up) * 0.0015f * (x - MouseX);
+		MouseX = x; // Store the current mouse position
+		MouseY = y;
 	}
 	if (MouseButton == GLUT_MIDDLE_BUTTON) {
 		Cam.zoom = std::max(0.001f, Cam.zoom + 0.0153f * (y - MouseY));
+		MouseX = x; // Store the current mouse position
+		MouseY = y;
 	}
 	if (MouseButton == GLUT_LEFT_BUTTON) {
 		Matrix4f ry, rr;
@@ -296,6 +346,9 @@ void Programm::motion(int x, int y) {
 		rr.rotate(0.05f * (MouseY - y), Cam.target.cross(Cam.up));
 		Cam.up = rr * Cam.up;
 		Cam.target = rr * Cam.target;
+
+		MouseX = x; // Store the current mouse position
+		MouseY = y;
 	}
 
 	// Redraw the scene

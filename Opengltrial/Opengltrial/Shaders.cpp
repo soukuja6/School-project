@@ -84,8 +84,8 @@ bool Shaderloader::Initshaders(const char * vertexShaderFilename, const char * f
 
 	// Get the location of the uniform variables
 	TrLocation = glGetUniformLocation(ShaderProgram, "transformation");
-	//PointTrLocation = glGetUniformLocation(ShaderProgram, "vertextransformation");
-	//NormalTrLocation = glGetUniformLocation(ShaderProgram, "normaltransformation");
+	PointTrLocation = glGetUniformLocation(ShaderProgram, "vertextransformation");
+	NormalTrLocation = glGetUniformLocation(ShaderProgram, "normaltransformation");
 	CameraPositionLoc = glGetUniformLocation(ShaderProgram, "camera_position");
 	CameraDirLoc = glGetUniformLocation(ShaderProgram, "cameradir");
 	DirectionalLoc = glGetUniformLocation(ShaderProgram, "directional");

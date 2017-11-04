@@ -115,6 +115,7 @@ public:
     bool hasPositions() const;
     bool hasTangents() const;
     bool hasTextureCoords() const;
+	void generateTangents();
 
 private:
     void addTrianglePos(int index, int material,
@@ -133,7 +134,7 @@ private:
     void bounds(float center[3], float &width, float &height,
         float &length, float &radius) const;
     void buildMeshes();
-    void generateTangents();
+    
     void importGeometryFirstPass(FILE *pFile);
     void importGeometrySecondPass(FILE *pFile);
     bool importMaterials(const char *pszFilename);

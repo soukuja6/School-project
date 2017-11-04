@@ -6,12 +6,15 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "Dependencies\glew\glew.h"
-#include "Dependencies\freeglut\freeglut.h"
+#include "glew.h"
+#include "freeglut.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <Algorithm>
+#include <filesystem>
+#include <experimental/filesystem>
+#include <ctime>
 
 #include "Matrix4.h"
 #include "model_obj.h"
@@ -30,6 +33,12 @@ enum Projections
 	Perspective
 };
 
+struct MyVertex
+{
+	Vector3f position;
+	float texcoords[2];
+	Vector3f normal;
+};
 
 struct Light {
 	Light() {
@@ -80,9 +89,9 @@ struct HeadLight : Light {        //spot light mounted on head with restricted l
 	}
 	void Reset() {
 		Light::Reset();
-		klinear = 0.01f;
-		ksquared = 0.1f;
-		anglerestriction = 10;
+		klinear = 0.005f;
+		ksquared = 0.05f;
+		anglerestriction = 15;
 	}
 
 	float klinear;
@@ -131,6 +140,7 @@ class Programm {
 public:
 	Programm() {
 		Cam.Reset();
+		lasttime = clock();
 	}
 
 
@@ -166,7 +176,14 @@ public:
 	GLuint VBO=0;	// A vertex buffer object
 	GLuint IBO=0;	// An index buffer object
 
+
+	GLuint VBOT = 0;	// A vertex buffer object of cube
+	GLuint IBOT = 0;	// An index buffer object  of cube
+	clock_t lasttime;
+	double difference;
+
 	std::vector<Texture> maintexture;            //stored textures
+	std::vector<Texture> cinematexture;            //stored textures
 						
 	GLuint ShaderProgram=0;	// A shader program
 	Shadertype shadertype = FragmentIllumination;   //typeofshader currently used
@@ -188,8 +205,8 @@ public:
 
 	//Shader variables
 	GLint TrLocation = -1;  //location of shader transformation variable
-	//GLint PointTrLocation = -1;  //location of matrix trandofrming to wolrd coordinates
-	//GLint NormalTrLocation = -1;  //location of matrix trandofrming normals to wolrd coordinates
+	GLint PointTrLocation = -1;  //location of matrix trandofrming to wolrd coordinates
+	GLint NormalTrLocation = -1;  //location of matrix trandofrming normals to wolrd coordinates
 
 	GLint DirectionalLoc = -1;
 	GLint CameraPositionLoc = -1;
