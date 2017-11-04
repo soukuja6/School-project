@@ -70,6 +70,18 @@ void Programm::display() {
 	// Set the uniform variable for the texture unit (texture unit 0)
 	glUniform1i(SamplerLoc, 0);
 
+
+
+	// Enable the vertex attributes and set their format
+	GLuint bumpSamplerLoc = glGetUniformLocation(ShaderProgram, "bumpsampler");
+
+	// Set the uniform variable for the texture unit (texture unit 1)
+	glUniform1i(bumpSamplerLoc, 1);
+
+	// Enable texture unit 1 and bind the texture to it
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, bumptexture.TextureObject);
+
 	// Bind the buffers
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -77,6 +89,7 @@ void Programm::display() {
 	glEnableVertexAttribArray(0);        //LOCATION is first
 	glEnableVertexAttribArray(1);        //texturecoor
 	glEnableVertexAttribArray(2);        //normal is third
+	glEnableVertexAttribArray(3);        //tangent is fourth
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
 		sizeof(ModelOBJ::Vertex),
 		reinterpret_cast<const GLvoid*>(0));
@@ -85,27 +98,14 @@ void Programm::display() {
 		sizeof(ModelOBJ::Vertex),
 		reinterpret_cast<const GLvoid*>(sizeof(float[3])+sizeof(float[2])));
 
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE,
+		sizeof(ModelOBJ::Vertex),
+		reinterpret_cast<const GLvoid*>(sizeof(float[3]) + sizeof(float[2])+ sizeof(float[3])));
+
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
 		sizeof(ModelOBJ::Vertex),
 		reinterpret_cast<const GLvoid*>(sizeof(Vector3f)));
 
-	
-	
-
-	/*
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2,	GL_FLOAT, GL_FALSE,
-	sizeof(ModelOBJ::Vertex),
-	reinterpret_cast<const GLvoid*>(sizeof(Vector3f)));*/
-
-	
-
-	// Draw the elements on the GPU
-	/*glDrawElements(
-		GL_TRIANGLES,
-		Model.getNumberOfIndices(),
-		GL_UNSIGNED_INT,
-		0);*/
 	// Enable texture unit 0 and bind the texture to it
 	glActiveTexture(GL_TEXTURE0);
 	//glBindTexture(GL_TEXTURE_2D, maintexture[3].TextureObject);
@@ -122,6 +122,7 @@ void Programm::display() {
 			}
 		}
 
+		glUniform1ui(Bumploc, i==0);											// only first mesh will have applied bump on it
 		glUniform3fv(MaterialAColorLoc,1, Model.getMaterial(j).ambient);
 		glUniform3fv(MaterialDColorLoc,1, Model.getMaterial(j).diffuse);
 		glUniform3fv(MaterialSColorLoc,1, Model.getMaterial(j).specular);
@@ -137,8 +138,13 @@ void Programm::display() {
 
 	}
 
+	//------------------------------------------------- draw gandalf gif--------------------------------------------------------
 	glBindBuffer(GL_ARRAY_BUFFER, VBOT);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBOT);
+
+	glUniform1ui(Bumploc, false);
+	// Enable texture unit 0 and bind the texture to it
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, cinematexture[(int)(difference * cinematexture.size())].TextureObject);
 	//cout << (int)(difference * cinematexture.size()) << endl;
 
@@ -171,6 +177,7 @@ void Programm::display() {
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
 
 
 	// Disable the shader program (not necessary but recommended)

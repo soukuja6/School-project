@@ -89,6 +89,7 @@ bool Shaderloader::Initshaders(const char * vertexShaderFilename, const char * f
 	CameraPositionLoc = glGetUniformLocation(ShaderProgram, "camera_position");
 	CameraDirLoc = glGetUniformLocation(ShaderProgram, "cameradir");
 	DirectionalLoc = glGetUniformLocation(ShaderProgram, "directional");
+	BumpLoc = glGetUniformLocation(ShaderProgram, "applybump");
 
 	DLightDirLoc = glGetUniformLocation(ShaderProgram, "d_light_direction");
 	DLightAColorLoc = glGetUniformLocation(ShaderProgram, "d_light_a_color");

@@ -17,6 +17,7 @@ uniform mat4 normaltransformation;
 layout (location = 0) in vec3 position; 
 layout (location = 1) in vec2 tex_coords; 
 layout (location = 2) in vec3 normal; 
+layout (location = 3) in vec3 tangent; 
 
 
 // pass the texture coordinates to the fragment shader
@@ -26,6 +27,7 @@ out vec2 cur_tex_coords;
 out vec4 fcolor;
 out vec3 positionout;
 out vec3 normalout;
+out vec3 tangentout;
 
 void main() {
 	// transform the vertex
@@ -34,6 +36,7 @@ void main() {
 	cur_tex_coords = tex_coords;
 	positionout = vec3(vertextransformation*vec4(position, 1.));
 	normalout = normalize(vec3(normaltransformation*vec4(normal,1.))) ;
+	tangentout = normalize(vec3(normaltransformation*vec4(tangent,1.))) ;
 	
 }
 

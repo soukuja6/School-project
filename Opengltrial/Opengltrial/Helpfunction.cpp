@@ -65,45 +65,10 @@ bool Programm::InitMesh(string location) {
 	auto path1 = current_path().append("cinema_textures");
 	for (auto & p : directory_iterator(path1)) {
 		auto name = p.path().string();
-
 		cinematexture.emplace_back();
-		auto & act = cinematexture.back();
-
-		if (act.TextureData != nullptr)
-			free(act.TextureData);
-		unsigned int fail = lodepng_decode_file(&act.TextureData, &act.TextureWidth, &act.TextureHeight,
-			name.c_str(),
-			LCT_RGB, 8); // Remember to check the last 2 parameters
-		if (fail != 0) {
-			cerr << "Error: cannot load texture file "
-				<< name << endl;
+		
+		if (!Loadtexture(name, cinematexture.back()))
 			return false;
-		}
-
-		// Create the texture object
-		if (act.TextureObject != 0)
-			glDeleteTextures(1, &act.TextureObject);
-		glGenTextures(1, &act.TextureObject);
-
-		// Bind it as a 2D texture (note that other types of textures are supported as well)
-		glBindTexture(GL_TEXTURE_2D, act.TextureObject);
-
-		// Set the texture data
-		glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			GL_RGB,			// remember to check this
-			act.TextureWidth,
-			act.TextureHeight,
-			0,
-			GL_RGB,			// remember to check this
-			GL_UNSIGNED_BYTE,
-			act.TextureData
-		);
-
-		// Configure texture parameter
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	}
 
@@ -146,50 +111,56 @@ bool Programm::InitMesh(string location) {
 		// if the current material has a texture
 		if (Model.getMaterial(i).colorMapFilename != "") {
 
-			// Load the texture
-			if (maintexture[i].TextureData != nullptr)
-				free(maintexture[i].TextureData);
-			unsigned int fail = lodepng_decode_file(&maintexture[i].TextureData, &maintexture[i].TextureWidth, &maintexture[i].TextureHeight,
-				("building\\" + Model.getMaterial(i).colorMapFilename).c_str(),
-				LCT_RGB, 8); // Remember to check the last 2 parameters
-			if (fail != 0) {
-				cerr << "Error: cannot load texture file "
-					<< "building\\"+Model.getMaterial(i).colorMapFilename << endl;
+			if (!Loadtexture("building\\" + Model.getMaterial(i).colorMapFilename, maintexture[i]))
 				return false;
-			}
-
-			// Create the texture object
-			if (maintexture[i].TextureObject != 0)
-				glDeleteTextures(1, &maintexture[i].TextureObject);
-			glGenTextures(1, &maintexture[i].TextureObject);
-
-			// Bind it as a 2D texture (note that other types of textures are supported as well)
-			glBindTexture(GL_TEXTURE_2D, maintexture[i].TextureObject);
-
-			// Set the texture data
-			glTexImage2D(
-				GL_TEXTURE_2D,
-				0,
-				GL_RGB,			// remember to check this
-				maintexture[i].TextureWidth,
-				maintexture[i].TextureHeight,
-				0,
-				GL_RGB,			// remember to check this
-				GL_UNSIGNED_BYTE,
-				maintexture[i].TextureData
-			);
-
-			// Configure texture parameter
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-			// For the moment, assumes there is only one texture to be loaded
-			//break;
 		}
 	}
-	
+
+	if (!Loadtexture("building\\bumpnormal.png", bumptexture))
+		return false;
+			
 	return true;
 } /* initBuffers() */
+
+bool Programm::Loadtexture(std::string texturename, Texture & texture) {
+	auto & act = texture;
+
+	if (act.TextureData != nullptr)
+		free(act.TextureData);
+	unsigned int fail = lodepng_decode_file(&act.TextureData, &act.TextureWidth, &act.TextureHeight,
+		texturename.c_str(),
+		LCT_RGB, 8); // Remember to check the last 2 parameters
+	if (fail != 0) {
+		cerr << "Error: cannot load texture file "
+			<< texturename << endl;
+		return false;
+	}
+
+	// Create the texture object
+	if (act.TextureObject != 0)
+		glDeleteTextures(1, &act.TextureObject);
+	glGenTextures(1, &act.TextureObject);
+
+	// Bind it as a 2D texture (note that other types of textures are supported as well)
+	glBindTexture(GL_TEXTURE_2D, act.TextureObject);
+
+	// Set the texture data
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		GL_RGB,			// remember to check this
+		act.TextureWidth,
+		act.TextureHeight,
+		0,
+		GL_RGB,			// remember to check this
+		GL_UNSIGNED_BYTE,
+		act.TextureData
+	);
+
+	// Configure texture parameter
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
 
 bool Programm::LoadShaders(std::string vertexshader, std::string fragmentshader)
 {
@@ -206,6 +177,7 @@ bool Programm::LoadShaders(std::string vertexshader, std::string fragmentshader)
 	CameraPositionLoc = loader.CameraPositionLoc;
 	CameraDirLoc = loader.CameraDirLoc;
 	DirectionalLoc = loader.DirectionalLoc;
+	Bumploc = loader.BumpLoc;
 
 	dLight.dLightDirLoc = loader.DLightDirLoc;
 	dLight.lightAColorLoc = loader.DLightAColorLoc;

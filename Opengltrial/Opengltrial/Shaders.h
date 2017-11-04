@@ -19,6 +19,7 @@ public:
 	GLint CameraPositionLoc = -1;
 	GLint CameraDirLoc = -1;
 	GLint DirectionalLoc = -1;                     //true=directional light  false= head-mounted light
+	GLint BumpLoc = -1;                     //true=applybump  false= not apply
 
 	GLint DLightDirLoc = -1;
 	GLint DLightAColorLoc = -1;

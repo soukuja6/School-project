@@ -47,7 +47,7 @@ struct Light {
 
 	void Reset() {
 		lightAColor = { 0.05f, 0.03f, 0.0f };
-		lightDColor = { 0.5f, 0.4f, 0.3f };
+		lightDColor = { 0.9f, 0.9f, 0.9f };
 		lightSColor = { 0.6f, 0.6f, 0.7f };
 		lightAIntensity= 1.0f;
 		lightDIntensity = 1.0f;
@@ -168,6 +168,11 @@ public:
 	///load shaders
 	///<summary>
 	bool LoadShaders(std::string vertexshader, std::string fragmentshader);
+
+	///<summary>
+	///load texture;
+	///<summary>
+	bool Loadtexture(std::string texturename, Texture & texture);
 	
 
 
@@ -184,6 +189,7 @@ public:
 
 	std::vector<Texture> maintexture;            //stored textures
 	std::vector<Texture> cinematexture;            //stored textures
+	Texture bumptexture;
 						
 	GLuint ShaderProgram=0;	// A shader program
 	Shadertype shadertype = FragmentIllumination;   //typeofshader currently used
@@ -204,6 +210,7 @@ public:
 	Camera Cam;
 
 	//Shader variables
+	GLint Bumploc = -1;     //location of switch between normal shanding and bump mapping
 	GLint TrLocation = -1;  //location of shader transformation variable
 	GLint PointTrLocation = -1;  //location of matrix trandofrming to wolrd coordinates
 	GLint NormalTrLocation = -1;  //location of matrix trandofrming normals to wolrd coordinates
