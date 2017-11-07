@@ -37,6 +37,8 @@ void Programm::display() {
 
 	glUniform3fv(CameraPositionLoc, 1, Cam.position.get());
 	glUniform3fv(CameraDirLoc, 1, Cam.target.get());
+
+	glUniform1f(texturevsmaterialindexloc, texturevsmaterialindex);
 	
 
 	if (directional) {  //if the directional light is enabled
@@ -55,6 +57,7 @@ void Programm::display() {
 		glUniform1f(pLight.klinearloc, pLight.klinear);
 		glUniform1f(pLight.ksquaredloc, pLight.ksquared);
 		glUniform1f(pLight.anglerestictionloc, pLight.anglerestriction);
+		glUniform1f(pLight.angledecreasecoefloc, pLight.angledecreasecoef);
 		glUniform3f(pLight.lightAColorLoc, pLight.lightAColor.x(), pLight.lightAColor.y(), pLight.lightAColor.z());
 		glUniform3f(pLight.lightDColorLoc, pLight.lightDColor.x(), pLight.lightDColor.y(), pLight.lightDColor.z());
 		glUniform3f(pLight.lightSColorLoc, pLight.lightSColor.x(), pLight.lightSColor.y(), pLight.lightSColor.z());
@@ -145,8 +148,15 @@ void Programm::display() {
 	glUniform1ui(Bumploc, false);
 	// Enable texture unit 0 and bind the texture to it
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, cinematexture[(int)(difference * cinematexture.size())].TextureObject);
-	//cout << (int)(difference * cinematexture.size()) << endl;
+	glBindTexture(GL_TEXTURE_2D, cinematexture[(int)(difference * cinematexture.size())].TextureObject);   //bind texture
+	
+
+	//set some rubish material
+	glUniform3f(MaterialAColorLoc, 0.5, 0.5, 0.5);
+	glUniform3f(MaterialDColorLoc, 0.5, 0.5, 0.5);
+	glUniform3f(MaterialSColorLoc, 0.5, 0.5, 0.5);
+	glUniform1f(MaterialShineLoc, 20);
+
 
 	vertextoworldtr = Matrix4f::createTranslation(Vector3f{ 0.0, 0.0, -2.0 });
 	glUniformMatrix4fv(PointTrLocation, 1, GL_FALSE, vertextoworldtr.get());
@@ -280,6 +290,16 @@ void Programm::keyboard(unsigned char key, int x, int y) {
 	case 'q':  // terminate the application
 		exit(0);
 		break;
+
+	case '+':
+		texturevsmaterialindex += 0.02;
+		texturevsmaterialindex = min(texturevsmaterialindex, 1.0);
+		break;
+
+	case '-':
+		texturevsmaterialindex -= 0.02;
+		texturevsmaterialindex = max(texturevsmaterialindex, 0.0);
+		break;
 	}
 	// redraw
 	glutPostRedisplay();
@@ -290,6 +310,7 @@ void Programm::special(int key, int x, int y) {
 	Vector3f right;
 
 	switch (key) {
+
 		// --- camera movements ---
 	case GLUT_KEY_PAGE_UP:	// Increase field of view
 		Cam.fov = min(Cam.fov + 1.f, 179.f);

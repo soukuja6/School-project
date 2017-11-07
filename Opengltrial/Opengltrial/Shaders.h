@@ -20,6 +20,7 @@ public:
 	GLint CameraDirLoc = -1;
 	GLint DirectionalLoc = -1;                     //true=directional light  false= head-mounted light
 	GLint BumpLoc = -1;                     //true=applybump  false= not apply
+	GLint texturevsmaterialindex = -1;
 
 	GLint DLightDirLoc = -1;
 	GLint DLightAColorLoc = -1;
@@ -32,6 +33,7 @@ public:
 	GLint klinearloc = -1;
 	GLint ksquaredloc = -1;
 	GLint anglerestrictionloc = -1;
+	GLint angledecreaseloc = -1;
 	GLint PLightAColorLoc = -1;
 	GLint PLightDColorLoc = -1;
 	GLint PLightSColorLoc = -1;

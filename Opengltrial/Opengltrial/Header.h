@@ -91,16 +91,19 @@ struct HeadLight : Light {        //spot light mounted on head with restricted l
 		Light::Reset();
 		klinear = 0.005f;
 		ksquared = 0.05f;
-		anglerestriction = 15;
+		anglerestriction = 20;
+		angledecreasecoef = 15;
 	}
 
 	float klinear;
 	float ksquared;
+	float angledecreasecoef;
 	int anglerestriction;
 
 	GLint anglerestictionloc = -1;
 	GLint klinearloc=-1;
 	GLint ksquaredloc=-1;
+	GLint angledecreasecoefloc = -1;
 
 };
 
@@ -141,6 +144,7 @@ public:
 	Programm() {
 		Cam.Reset();
 		lasttime = clock();
+		texturevsmaterialindex = 1.0;
 	}
 
 
@@ -190,6 +194,8 @@ public:
 	std::vector<Texture> maintexture;            //stored textures
 	std::vector<Texture> cinematexture;            //stored textures
 	Texture bumptexture;
+	double texturevsmaterialindex;                //how much does texture influence colour;
+	GLint texturevsmaterialindexloc=-1; 
 						
 	GLuint ShaderProgram=0;	// A shader program
 	Shadertype shadertype = FragmentIllumination;   //typeofshader currently used

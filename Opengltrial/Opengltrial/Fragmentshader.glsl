@@ -8,8 +8,11 @@ uniform vec3 cameradir;
 //directional or head mounted
 uniform bool directional;
 
-//directional or head mounted
+//apply or not apply bumps
 uniform bool applybump;
+
+//texture vs mat property influence diffuse colour
+uniform float tex_vs_mat;
 
 // Directional light
 uniform vec3 d_light_direction;
@@ -30,6 +33,7 @@ uniform float p_light_s_intensity;
 uniform float klinear;
 uniform float ksquared;
 uniform float anglerest;
+uniform float angledecrease;
 // TODO: other parameters
 
 // Object material
@@ -77,7 +81,7 @@ void main() {
 	vec4 fcolor;
 	float dist = length(camera_position - positionout);
 
-	vec3 diffusecolor =  vec3(texture2D(sampler, cur_tex_coords));
+	vec3 diffusecolor =  tex_vs_mat * vec3(texture2D(sampler, cur_tex_coords)) + (1.0 - tex_vs_mat) * material_d_color;
 
 	if(directional){
 		// --- directional light ----
@@ -128,8 +132,9 @@ void main() {
 		
 		//restrict light to angle
 		float intensitydeccoef=distancecoef;
-		float lightToSurfaceAngle = degrees(acos(dot(p_light_dir_nn, normalize(cameradir))));
-		if(lightToSurfaceAngle > anglerest){
+		float lightToSurfaceAngle =dot(p_light_dir_nn, normalize(cameradir));
+		intensitydeccoef *= pow(lightToSurfaceAngle,angledecrease);
+		if(degrees(acos(lightToSurfaceAngle)) > anglerest){
 			intensitydeccoef = 0.0;
 		}
 

@@ -90,6 +90,7 @@ bool Shaderloader::Initshaders(const char * vertexShaderFilename, const char * f
 	CameraDirLoc = glGetUniformLocation(ShaderProgram, "cameradir");
 	DirectionalLoc = glGetUniformLocation(ShaderProgram, "directional");
 	BumpLoc = glGetUniformLocation(ShaderProgram, "applybump");
+	texturevsmaterialindex = glGetUniformLocation(ShaderProgram, "tex_vs_mat");
 
 	DLightDirLoc = glGetUniformLocation(ShaderProgram, "d_light_direction");
 	DLightAColorLoc = glGetUniformLocation(ShaderProgram, "d_light_a_color");
@@ -102,6 +103,7 @@ bool Shaderloader::Initshaders(const char * vertexShaderFilename, const char * f
 	klinearloc = glGetUniformLocation(ShaderProgram, "klinear");
 	ksquaredloc = glGetUniformLocation(ShaderProgram, "ksquared");
 	anglerestrictionloc = glGetUniformLocation(ShaderProgram, "anglerest");
+	angledecreaseloc = glGetUniformLocation(ShaderProgram, "angledecrease");
 	PLightAColorLoc = glGetUniformLocation(ShaderProgram, "p_light_a_color");
 	PLightDColorLoc = glGetUniformLocation(ShaderProgram, "p_light_d_color");
 	PLightSColorLoc = glGetUniformLocation(ShaderProgram, "p_light_s_color");

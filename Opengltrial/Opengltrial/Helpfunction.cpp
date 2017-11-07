@@ -178,6 +178,7 @@ bool Programm::LoadShaders(std::string vertexshader, std::string fragmentshader)
 	CameraDirLoc = loader.CameraDirLoc;
 	DirectionalLoc = loader.DirectionalLoc;
 	Bumploc = loader.BumpLoc;
+	texturevsmaterialindexloc = loader.texturevsmaterialindex;
 
 	dLight.dLightDirLoc = loader.DLightDirLoc;
 	dLight.lightAColorLoc = loader.DLightAColorLoc;
@@ -188,6 +189,7 @@ bool Programm::LoadShaders(std::string vertexshader, std::string fragmentshader)
 	dLight.lightSIntensityLoc = loader.DLightSIntensityLoc;
 
 	pLight.anglerestictionloc = loader.anglerestrictionloc;
+	pLight.angledecreasecoefloc = loader.angledecreaseloc;
 	pLight.klinearloc = loader.klinearloc;
 	pLight.ksquaredloc = loader.ksquaredloc;
 	pLight.lightAColorLoc = loader.PLightAColorLoc;
